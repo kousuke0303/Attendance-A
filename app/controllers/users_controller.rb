@@ -1,7 +1,9 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update]
-  before_action :logged_in_user, only: [:show, :edit, :update]
+  before_action :set_user, only: [:show, :edit, :update, :destroy,
+                                  :edit_basic_info, :update_basic_info]
+  before_action :logged_in_user, only: [:show, :edit, :update, :destroy]
   before_action :correct_user, only: [:edit, :update]
+  before_action :admin_user, only: [:index, :destroy, :edit_basic_info, :update_basic_info]
   
   def index
     @users = User.paginate(page: params[:page])
@@ -37,10 +39,32 @@ class UsersController < ApplicationController
     end
   end
   
+  def destroy
+    @user.destroy
+    flash[:success] = "#{@user.name}を削除しました。"
+    redirect_to users_url
+  end
+  
+  def edit_basic_info
+  end
+  
+  def update_basic_info
+    if @user.update_attributes(basic_info_params)
+      flash[:success] = "#{@user.name}の基本情報を更新しました。"
+      redirect_to users_path
+    else
+      render :edit_basic_info
+    end
+  end
+  
   private
   
     def user_params
       params.require(:user).permit(:name, :email, :department, :password, :password_confirmation)
+    end
+    
+    def basic_info_params
+      params.require(:user).permit(:department, :work_time, :basic_time)
     end
     
     # beforeフィルター
@@ -62,5 +86,10 @@ class UsersController < ApplicationController
     # アクセスしたユーザーが現在ログインしているユーザーか確認します。
     def correct_user
       redirect_to(root_url) unless current_user?(@user)
+    end
+    
+    # システム管理権限所有かどうか判定します。
+    def admin_user
+      redirect_to root_url unless current_user.admin?
     end
 end

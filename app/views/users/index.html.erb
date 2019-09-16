@@ -5,11 +5,30 @@
   <div class="col-md-10 col-md-offset-1">
     <%= will_paginate %>
     <table class="table table-condensed table-hover" id="table-users">
-      <% @users.each do |user| %>
+      <thead>
         <tr>
-          <td><%= link_to user.name, user_path(user) %></td>
+          <th>名前</th>
+          <th>指定勤務時間</th>
+          <th>基本時間</th>
+          <th></th>
         </tr>
-      <% end %>
+      </thead>
+      <tbody>
+        <% @users.each do |user| %>
+          <tr>
+            <td><%= link_to user.name, user_path(user) %></td>
+            <td><%= format_basic_info(user.work_time) %></td>
+            <td><%= format_basic_info(user.basic_time) %></td>
+            <td>
+              <%= link_to "基本情報編集", edit_basic_info_user_path(user), class: "btn btn-success" %>
+              <% unless current_user.id == user.id %>
+                <%= link_to "削除", user, method: :delete, class: "btn btn-danger",
+                    data: { confirm: "#{user.name}を削除してよろしいですか？" } %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
     </table>
     <%= will_paginate %>
   </div>
