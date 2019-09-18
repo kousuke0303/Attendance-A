@@ -5,6 +5,17 @@
   text-align: center;
 }
 
+#table-attendances {
+  th {
+    vertical-align: middle;
+    text-align: center;
+  }
+  td {
+    vertical-align: middle;
+    text-align: center;
+  }
+}
+
 /* ユーザー情報入力フォーム */
 
 .label-signup {
