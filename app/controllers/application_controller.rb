@@ -20,6 +20,20 @@ class ApplicationController < ActionController::Base
     end
   end
   
+  # ログイン済みユーザーのアクセス制限
+  def logged_in_user_not
+    flash[:info] = "すでにログインしています。"
+    redirect_to root_url if logged_in?
+  end
+  
+  # ログイン中のアカウント作成制限
+  def only_admin_or_once
+    if logged_in? && !current_user.admin?
+      flash[:info] = "すでにアカウント作成済です。"
+      redirect_to root_url
+    end
+  end
+  
   # アクセスしたユーザーが現在ログインしているユーザーか確認します。
   def correct_user
     redirect_to(root_url) unless current_user?(@user)
