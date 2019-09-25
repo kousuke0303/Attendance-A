@@ -22,8 +22,10 @@ class ApplicationController < ActionController::Base
   
   # ログイン済みユーザーのアクセス制限
   def logged_in_user_not
-    flash[:info] = "すでにログインしています。"
-    redirect_to root_url if logged_in?
+    if logged_in?
+      flash[:info] = "すでにログインしています。"
+      redirect_to root_url if logged_in?
+    end
   end
   
   # ログイン中のアカウント作成制限
@@ -42,6 +44,15 @@ class ApplicationController < ActionController::Base
   # システム管理権限所有かどうか判定します。
   def admin_user
     redirect_to root_url unless current_user.admin?
+  end
+  
+  # 管理権限者、または現在ログインしているユーザーを許可します。
+  def admin_or_correct_user
+    @user = User.find(params[:user_id]) if @user.blank?
+    unless current_user?(@user) || current_user.admin?
+      flash[:danger] = "編集権限がありません。"
+      redirect_to(root_url)
+    end
   end
   
   # ページ出力前に1ヶ月分のデータの存在を確認・セットします。
