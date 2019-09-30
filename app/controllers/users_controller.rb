@@ -61,6 +61,11 @@ class UsersController < ApplicationController
     end
   end
   
+  def attendanced_index
+    @users = User.includes(:attendances).where(attendances: { worked_on: Date.current, finished_at: nil })
+                                        .where.not(attendances: { started_at: nil })
+  end
+  
   private
   
     def user_params

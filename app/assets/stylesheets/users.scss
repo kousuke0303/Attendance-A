@@ -67,3 +67,16 @@
   width: 30%;
   margin: 0 0 0 auto;
 }
+
+/* 出勤中ユーザー一覧ページ */
+
+#attendanced-table {
+  th {
+    vertical-align: middle;
+    text-align: center;
+    }
+  td {
+    vertical-align: middle;
+    text-align: center;
+    }
+}
