@@ -8,11 +8,11 @@
         <%= link_to "→", user_path(date: @first_day.next_month), class: "btn btn-sm btn-primary" %>
       </td>
       <td>指定勤務開始時間<br>指定勤務終了時間</td>
-      <td colspan="3">基本時間 <%= format_basic_info(@user.basic_time) %></td>
+      <td colspan="3">基本時間 <%= format_basic_info(@user.basic_work_time) %></td>
       <td>初日：<%= l(@first_day, format: :short) %></td>
     </tr>
     <tr>
-      <td>所属：<%= @user.department %></td>
+      <td>所属：<%= @user.affiliation %></td>
       <td>氏名：<%= @user.name %></td>
       <td>コード</td>
       <td><p>&thinsp;</p></td>
@@ -124,7 +124,7 @@
       </tr>
       <tr>
         <td colspan="2"><%= @attendances.count %></td>
-        <td colspan="7"><%= format_basic_info(@user.basic_time).to_f * @worked_sum %></td>
+        <td colspan="7"><%= format_basic_info(@user.basic_work_time).to_f * @worked_sum %></td>
         <td colspan="2"><%= format("%.2f", @total_working_times.to_f ) %></td>
       </tr>
     </tfoot>
