@@ -5,7 +5,8 @@ class UsersController < ApplicationController
   before_action :correct_user, only: [:edit, :update]
   before_action :admin_or_correct_user, only: :show
   before_action :only_admin_or_once, only: [:new, :create]
-  before_action :admin_user, only: [:index, :destroy, :edit_basic_info, :update_basic_info]
+  before_action :admin_user, only: [:index, :destroy, :edit_basic_info, :update_basic_info,
+                                    :attendancing_index, :import]
   before_action :set_one_month, only: :show
   
   def index
@@ -61,9 +62,22 @@ class UsersController < ApplicationController
     end
   end
   
-  def attendanced_index
+  def attendancing_index
     @users = User.includes(:attendances).where(attendances: { worked_on: Date.current, finished_at: nil })
                                         .where.not(attendances: { started_at: nil })
+  end
+  
+  def import
+    current_user_count = User.count
+    if params[:file].blank?
+      flash[:danger] = "ファイルを選択してください。"
+      redirect_to users_url
+    elsif
+      User.import(params[:file])
+      new_user_count = User.count - current_user_count
+      flash[:success] = "#{new_user_count}件のデータを登録しました。"
+      redirect_to users_url
+    end
   end
   
   private

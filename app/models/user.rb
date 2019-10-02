@@ -55,4 +55,17 @@ class User < ApplicationRecord
         User.all 
     end
   end
+  
+  def self.import(file)
+    CSV.foreach(file.path, headers: true) do |row|
+      user = new
+      user.attributes = row.to_hash.slice(*updatable_attributes)
+      user.save
+    end
+  end
+  
+  def self.updatable_attributes
+    ["name", "email", "affiliation", "employee_number", "uid", "basic_work_time",
+     "designated_work_start_time", "designated_work_end_time", "superior", "admin", "password"]
+  end
 end

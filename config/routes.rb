@@ -1,7 +1,6 @@
 Rails.application.routes.draw do
   root 'static_pages#top'
   get 'signup', to: 'users#new'
-  get 'attendanced', to: 'users#attendanced_index'
   
   # ログイン機能
   get 'login', to: 'sessions#new'
@@ -14,6 +13,10 @@ Rails.application.routes.draw do
       patch 'update_basic_info'
       get 'attendances/edit_one_month'
       patch 'attendances/update_one_month'
+    end
+    collection do
+      get 'attendancing_index'
+      post 'import'
     end
     resources :attendances, only: :update
   end

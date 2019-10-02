@@ -34,9 +34,9 @@ ActiveRecord::Schema.define(version: 20190917035541) do
     t.string "remember_digest"
     t.integer "employee_number"
     t.string "uid"
-    t.datetime "basic_work_time", default: "2019-09-29 23:00:00"
-    t.datetime "designated_work_start_time", default: "2019-09-30 00:00:00"
-    t.datetime "designated_work_end_time", default: "2019-09-30 08:00:00"
+    t.datetime "basic_work_time", default: "2019-10-01 23:00:00"
+    t.datetime "designated_work_start_time", default: "2019-10-02 00:00:00"
+    t.datetime "designated_work_end_time", default: "2019-10-02 08:00:00"
     t.boolean "superior", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
   end

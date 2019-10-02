@@ -68,6 +68,18 @@
   margin: 0 0 0 auto;
 }
 
+.btn-csv-import {
+  margin-top: 10px;
+}
+
+/* CSVインポート */
+
+.csv-file-import {
+  width: 100%;
+}
+
+#file_button {display: none;}
+
 /* 出勤中ユーザー一覧ページ */
 
 #attendanced-table {
