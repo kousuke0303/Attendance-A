@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   root 'static_pages#top'
   get 'signup', to: 'users#new'
+  get 'basic_info_update', to: 'static_pages#update'
   
   # ログイン機能
   get 'login', to: 'sessions#new'

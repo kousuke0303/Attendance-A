@@ -57,10 +57,15 @@
 
 /* ユーザー一覧ページ */
 
-#table-users {
-  td {
-    vertical-align: middle;
-  }
+.user-delete-area {
+  border-left: solid 5px gray;
+  padding-left: 10px;
+}
+
+.user-edit-area {
+  background-color: whitesmoke;
+  border-radius: 10px;
+  padding: 10px;
 }
 
 .user-search {

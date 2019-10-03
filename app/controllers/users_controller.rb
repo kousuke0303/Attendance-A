@@ -30,6 +30,15 @@ class UsersController < ApplicationController
   
   def show
     @worked_sum = @attendances.where.not(started_at: nil).count
+    respond_to do |format|
+      format.html do
+          #html用の処理を書く
+      end 
+      format.csv do
+          #csv用の処理を書く
+          send_data render_to_string, filename: "(ファイル名).csv", type: :csv
+      end
+    end
   end
   
   def edit
@@ -87,6 +96,6 @@ class UsersController < ApplicationController
     end
     
     def basic_info_params
-      params.require(:user).permit(:affiliation, :basic_work_time, :designated_work_start_time, :designated_work_end_time)
+      params.require(:user).permit(:affiliation, :employee_number, :uid, :basic_work_time, :designated_work_start_time, :designated_work_end_time)
     end
 end

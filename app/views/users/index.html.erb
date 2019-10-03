@@ -8,7 +8,7 @@
 <div class="row">
   <div class="col-md-10 col-md-offset-1">
     <div class="row">
-    <div class="col-md-4">
+      <div class="col-md-4">
       <%= form_with url:import_users_path, method: :post, multipart: true do |f| %>
         <div class"csv-file-import">
           <input id="filename" size="36" readonly type="text" value="" ><button type="button" id="select_file_button">選択</button>
@@ -17,7 +17,7 @@
         <%= f.submit "CSVをインポート", class: "btn btn-primary btn-block btn-csv-import" %>
       <% end %>
     </div>
-    </div>
+  </div>
     
     <div class="user-search">
       <%= form_with url: users_path, method: :get, local: true do |f| %>
@@ -28,30 +28,18 @@
     </div>
     
     <%= will_paginate %>
-    <table class="table table-condensed table-hover" id="table-users">
-      <thead>
-        <tr>
-          <th>名前</th>
-          <th>基本時間</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @users.each do |user| %>
-          <tr>
-            <td><%= link_to user.name, user_path(user) %></td>
-            <td><%= format_basic_info(user.basic_work_time) %></td>
-            <td>
-              <%= link_to "基本情報編集", edit_basic_info_user_path(user), class: "btn btn-primary" %>
-              <% unless current_user.id == user.id %>
-                <%= link_to "削除", user, method: :delete, class: "btn btn-primary",
-                    data: { confirm: "#{user.name}を削除してよろしいですか？" } %>
-              <% end %>
-            </td>
-          </tr>
+      <% @users.each do |user| %>
+        <p><%= link_to user.name, user_path(user) %></p>
+        <% unless current_user.id == user.id %>
+          <div class="user-delete-area">
+            <%= link_to "削除", user, method: :delete, class: "btn btn-primary",
+              data: { confirm: "#{user.name}を削除してよろしいですか？" } %>
+          </div>
         <% end %>
-      </tbody>
-    </table>
+        <div class="user-edit-area">
+          <%= link_to "編集", edit_basic_info_user_path(user), class: "btn btn-lg btn-primary" %>
+        </div>
+      <% end %>
     <%= will_paginate %>
   </div>
 </div>
