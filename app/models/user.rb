@@ -47,15 +47,6 @@ class User < ApplicationRecord
     update_attribute(:remember_digest, nil)
   end
   
-  # ユーザー検索による@user定義の変更
-  def self.search(search)
-    if search
-        User.where(['name LIKE (?)', "%#{search}%"])
-    else
-        User.all 
-    end
-  end
-  
   def self.import(file)
     CSV.foreach(file.path, headers: true) do |row|
       user = new

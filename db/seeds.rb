@@ -1,7 +1,22 @@
 User.create!(name: "Sample User",
              email: "sample@email.com",
              admin: true,
+             superior: true,
              affiliation: "管理者",
+             password: "password",
+             password_confirmation: "password")
+             
+User.create!(name: "superior A",
+             email: "superior_a@email.com",
+             superior: true,
+             affiliation: "部長",
+             password: "password",
+             password_confirmation: "password")
+             
+User.create!(name: "superior B",
+             email: "superior_b@email.com",
+             superior: true,
+             affiliation: "課長",
              password: "password",
              password_confirmation: "password")
 

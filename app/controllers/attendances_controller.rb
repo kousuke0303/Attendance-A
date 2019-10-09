@@ -47,6 +47,23 @@ class AttendancesController < ApplicationController
     redirect_to attendances_edit_one_month_user_url(date: params[:date])
   end
   
+  def apply_overtime
+    attendances = Attendance.where(worked_on: params[:hidden_date], user_id: current_user.id)
+    attendance = attendances[0]
+    if attendance.update_attributes(plans_end_work_time: params[:plans_end_work_time],
+                                    overtime_tomorrow_check: params[:overtime_tomorrow_check],
+                                    overtime_content: params[:overtime_content],
+                                    overtime_target_user_id: params[:overtime_target_user_id])
+      attendance.update_attributes(overtime_status: "applying")
+      target_user = User.find(params[:overtime_target_user_id])
+      flash[:success] = "#{target_user.name}へ残業を申請しました。"
+      redirect_to user_url(current_user)
+    else
+      flash[:danger] = "終了予定時間、業務処理内容(2~100文字)、申請先上長を入力してください。"
+      redirect_to user_url(current_user)
+    end
+  end
+  
   private
   
     # 1ヶ月分の勤怠情報を扱います。

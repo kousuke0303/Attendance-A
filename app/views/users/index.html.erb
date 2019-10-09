@@ -1,30 +1,18 @@
 <% provide(:title, "All Users") %>
-<% if params[:search] %>
-  <h1>検索結果</h1>
-<% else %>
-  <h1>ユーザー一覧</h1>
-<% end %>
+<h1>ユーザー一覧</h1>
 
 <div class="row">
   <div class="col-md-10 col-md-offset-1">
     <div class="row">
       <div class="col-md-4">
-      <%= form_with url:import_users_path, method: :post, multipart: true do |f| %>
-        <div class"csv-file-import">
-          <input id="filename" size="36" readonly type="text" value="" ><button type="button" id="select_file_button">選択</button>
-          <input id="file_button" type="file">
-        </div>
-        <%= f.submit "CSVをインポート", class: "btn btn-primary btn-block btn-csv-import" %>
-      <% end %>
-    </div>
-  </div>
-    
-    <div class="user-search">
-      <%= form_with url: users_path, method: :get, local: true do |f| %>
-        </p>ユーザー名検索</p>
-        <%= f.text_field :search, placeholder: "キーワードを入力..." %>
-        <%= f.submit "検索", class: "btn btn-sm btn-primary" %>
-      <% end %>
+        <%= form_with url:import_users_path, method: :post, multipart: true do |f| %>
+          <div class"csv-file-import">
+            <input id="filename" size="36" readonly type="text" value="" ><button type="button" id="select_file_button">選択</button>
+            <input id="file_button" type="file">
+          </div>
+          <%= f.submit "CSVをインポート", class: "btn btn-primary btn-block btn-csv-import" %>
+        <% end %>
+      </div>
     </div>
     
     <%= will_paginate %>

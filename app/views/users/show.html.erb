@@ -21,6 +21,14 @@
     </tr>
   </table>
   
+  <div class="information">
+    <ul style="list-style-type: none">
+    <li><%= link_to "【所属長承認申請のお知らせ】", "#" %></li>
+    <li><%= link_to "【勤怠変更申請のお知らせ】", "#" %></li>
+    <li><%= link_to "【残業申請のお知らせ】", "#" %></li>
+    </ul>
+  </div>
+  
   <div class="btn-users-show">
     <%= link_to "勤怠を編集", attendances_edit_one_month_user_path(date: @first_day), class: "btn btn-primary" %>
     <%= link_to "CSV出力", user_path(date: @first_day, format: :csv) ,class: "btn btn-primary" %><br>
@@ -61,7 +69,16 @@
     <tbody>
       <% @attendances.each do |day| %>
         <tr>
-          <td><%= link_to "残業申請", "#", class: "btn btn-primary" %></td>
+          <td>
+            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal"
+              data-target="#ApplyOvertimeModal"
+              data-date="<%= day.worked_on.month %>/<%= day.worked_on.day %>"
+              data-wday="<%= $days_of_the_week[day.worked_on.wday] %>"
+              data-id="<%= day.id %>"
+              data-hidden_date="<%= day.worked_on %>">
+              残業申請
+            </button>
+          </td>
           <td><%= l(day.worked_on, format: :short) %></td>
           <td>
             <% if day.worked_on.wday == 0 %>
@@ -73,12 +90,10 @@
             <% end %>
           </td>
           <td>
-            <% floor_str = day.started_at.floor_to(15.minutes) if day.started_at.present? %>
-            <%= floor_str.strftime("%H") if floor_str %>
+            <%= day.started_at.strftime("%H") if day.started_at.present? %>
           </td>
           <td>
-            <% floor_str = day.started_at.floor_to(15.minutes) if day.started_at.present? %>
-            <%= floor_str.strftime("%M") if floor_str %>
+            <%= day.started_at.strftime("%M") if day.started_at.present? %>
           </td>
           <td>
             <% if btn_text = attendance_state(day) %>
@@ -87,25 +102,27 @@
             <% end %>
           </td>
           <td>
-            <% floor_fin = day.finished_at.floor_to(15.minutes) if day.finished_at.present? %>
-            <%= floor_fin.strftime("%H") if floor_fin %>
+            <%= day.finished_at.strftime("%H") if day.finished_at.present? %>
           </td>
           <td>
-            <% floor_fin = day.finished_at.floor_to(15.minutes) if day.finished_at.present? %>
-            <%= floor_fin.strftime("%M") if floor_fin %>
+            <%= day.finished_at.strftime("%M") if day.finished_at.present? %>
           </td>
           <td></td>
           <td>
             <% if day.started_at.present? && day.finished_at.present? %>
-              <%= str_times = working_times(floor_str, floor_fin) %>
+              <%= str_times = working_times(day.started_at, day.finished_at) %>
               <% @total_working_times = @total_working_times.to_f + str_times. to_f %>
             <% end %>
           </td>
           <td><%= day.note %></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
+          <td><%= day.plans_end_work_time.strftime("%H") if day.plans_end_work_time.present? %></td>
+          <td><%= day.plans_end_work_time.strftime("%M") if day.plans_end_work_time.present? %></td>
+          <td>
+            <% if day.overtime_tomorrow_check == 1 %>
+              <%= "0" %>
+            <% end %>
+          </td>
+          <td><%= day.overtime_content %></td>
           <td></td>
         </tr>
       <% end %>
@@ -130,3 +147,73 @@
     </tfoot>
   </table>
 </div>
+
+<div class="modal fade" id="ApplyOvertimeModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-center">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <h1 class="modal-title">【残業申請】</h1>
+            <%= form_with url: attendances_apply_overtime_user_path(current_user),
+              local: true, method: :patch do |f|  %>
+              <table class="table table-bordered table-condensed table-hover" id="apply_overtime_table">
+                <thead>
+                  <tr>
+                    <th>日付</th>
+                    <th>曜日</th>
+                    <th>終了予定時間</th>
+                    <th>翌日</th>
+                    <th>業務処理内容</th>
+                    <th>指示者確認㊞</th>
+                    </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="modal-date"></td>
+                    <td class="modal-wday"></td>
+                    <td><%= f.time_field :plans_end_work_time, class: "form-control" %></td>
+                    <td><%= f.check_box :overtime_tomorrow_check %></td>
+                    <td><%= f.text_field :overtime_content, class: "form-control" %></td>
+                    <td><%= f.collection_select(:overtime_target_user_id, User.where(superior: true)
+                                                .where.not(id: current_user.id), :id, :name,
+                                                {prompt: "申請先上長を選択"}, {class: "form-control"}) %>
+                    </td>
+                  　<%= f.hidden_field :hidden_date, class: 'form-control modal-hiddenDate' %>
+                  </tr>
+                </tbody>
+              </table>
+              <%= f.submit "変更を送信する", class: "btn btn-lg btn-block btn-primary" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $('#ApplyOvertimeModal').on('show.bs.modal', function (event) {
+   　
+    var button = $(event.relatedTarget); 
+    var date = button.data('date'); 
+    var modal = $(this);
+    modal.find('.modal-date').text(date); 
+    
+    var button = $(event.relatedTarget);
+    var wday = button.data('wday');
+    var modal =$(this);
+    modal.find('.modal-wday').text(wday);
+
+    var button = $(event.relatedTarget);
+    var hidden_date = button.data('hidden_date');
+    var modal =$(this);
+    modal.find('.modal-hiddenDate').val(hidden_date);
+    
+  });
+</script>
