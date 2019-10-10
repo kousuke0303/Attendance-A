@@ -21,4 +21,10 @@ module AttendancesHelper
       format("%.2f", (1440 - d_w_e_t_to_min + day.plans_end_work_time.hour * 60 + day.plans_end_work_time.min) / 60.0)
     end
   end
+  
+  # ユーザーに対する残業申請を配列と定義
+  
+  def applying_overtime_any?
+    Attendance.where(overtime_target_user_id: @user.id, overtime_status: "applying")
+  end
 end

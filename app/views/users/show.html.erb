@@ -25,7 +25,14 @@
     <ul style="list-style-type: none">
     <li><%= link_to "【所属長承認申請のお知らせ】", "#" %></li>
     <li><%= link_to "【勤怠変更申請のお知らせ】", "#" %></li>
-    <li><%= link_to "【残業申請のお知らせ】", "#" %></li>
+    <% if applying_overtime_any?.count == 0 %>
+    <li>【残業申請のお知らせ】</li>
+    <% else %>
+      <li>
+        <%= link_to "【残業申請のお知らせ】", "#" %>
+        <%= "#{applying_overtime_any?.count}件の通知があります" %>
+      </li>
+    <% end %>
     </ul>
   </div>
   
