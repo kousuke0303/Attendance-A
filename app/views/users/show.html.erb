@@ -118,9 +118,7 @@
           <td><%= day.plans_end_work_time.strftime("%H") if day.plans_end_work_time.present? %></td>
           <td><%= day.plans_end_work_time.strftime("%M") if day.plans_end_work_time.present? %></td>
           <td>
-            <% if day.overtime_tomorrow_check == 1 %>
-              <%= "0" %>
-            <% end %>
+            <%= overtime(day) %>
           </td>
           <td><%= day.overtime_content %></td>
           <td></td>
