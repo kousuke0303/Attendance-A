@@ -6,6 +6,7 @@ class CreateAttendances < ActiveRecord::Migration[5.1]
       t.datetime :finished_at
       t.datetime :plans_end_work_time
       t.string :note
+      t.string :overtime
       t.string :overtime_content
       t.integer :overtime_target_user_id
       t.string :overtime_status

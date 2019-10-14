@@ -1,12 +1,42 @@
 .information {
   margin-bottom: 20px;
+  button {
+    background-color: transparent;
+    border: none;
+    color: red;
+    outline: none;
+    padding: 0;
+  }
+}
+
+.info-count-red {
+  border: solid 3px red;
+  color: red;
+  font-weight: bold;
+}
+
+/* 申請された残業情報確認テーブル */
+
+#applying_overtime_table {
+  th {
+    text-align: center;
+  vertical-align: middle;
+  }
+  td {
+    text-align: center;
+  vertical-align: middle;
+  }
+}
+
+.btn-approve-overtime {
+  text-align: center;
 }
 
 /* ユーザー情報テーブル */
 
 #user-table td {
-  vertical-align: middle;
   text-align: center;
+  vertical-align: middle;
 }
 
 #table-attendances {

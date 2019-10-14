@@ -25,12 +25,14 @@
     <ul style="list-style-type: none">
     <li><%= link_to "【所属長承認申請のお知らせ】", "#" %></li>
     <li><%= link_to "【勤怠変更申請のお知らせ】", "#" %></li>
-    <% if applying_overtime_any?.count == 0 %>
+    <% if applying_overtime_attendances.count == 0 %>
     <li>【残業申請のお知らせ】</li>
     <% else %>
       <li>
-        <%= link_to "【残業申請のお知らせ】", "#" %>
-        <%= "#{applying_overtime_any?.count}件の通知があります" %>
+        <button type="button" data-toggle="modal" data-target="#ApproveOvertimeModal">
+          残業申請のお知らせ】
+        </button>
+        <span class="info-count-red"><%= "#{applying_overtime_attendances.count}件の通知があります" %></span>
       </li>
     <% end %>
     </ul>
@@ -124,9 +126,7 @@
           <td><%= day.note %></td>
           <td><%= day.plans_end_work_time.strftime("%H") if day.plans_end_work_time.present? %></td>
           <td><%= day.plans_end_work_time.strftime("%M") if day.plans_end_work_time.present? %></td>
-          <td>
-            <%= overtime(day) %>
-          </td>
+          <td><%= day.overtime %></td>
           <td><%= day.overtime_content %></td>
           <td></td>
         </tr>
@@ -166,7 +166,7 @@
           <div class="col-md-12">
             <h1 class="modal-title">【残業申請】</h1>
             <%= form_with url: attendances_apply_overtime_user_path(current_user),
-              local: true, method: :patch do |f|  %>
+                local: true, method: :patch do |f| %>
               <table class="table table-bordered table-condensed table-hover" id="apply_overtime_table">
                 <thead>
                   <tr>
@@ -189,11 +189,72 @@
                                                 .where.not(id: current_user.id), :id, :name,
                                                 {prompt: "申請先上長を選択"}, {class: "form-control"}) %>
                     </td>
-                  　<%= f.hidden_field :hidden_date, class: 'form-control modal-hiddenDate' %>
+                  　<%= f.hidden_field :hidden_date, class: "form-control modal-hiddenDate" %>
                   </tr>
                 </tbody>
               </table>
               <%= f.submit "変更を送信する", class: "btn btn-lg btn-block btn-primary" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="ApproveOvertimeModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-center">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <%= form_with url: attendances_approve_overtime_user_path(current_user),
+                local: true, method: :patch do |f| %>
+              <% grouped_attendances.each do |attendance_group, user_id| %>
+                <h3><%= "【#{search_user(user_id[0]).name}からの残業申請】" %></h3>
+                <table class="table table-condensed table-hover table-bordered"
+                       id="applying_overtime_table">
+                  <thead>
+                    <tr>
+                      <th>日付</th>
+                      <th>曜日</th>
+                      <th>終了予定時間</th>
+                      <th>指定勤務終了時間</th>
+                      <th>時間外時間</th>
+                      <th>業務処理内容</th>
+                      <th>指示者確認㊞</th>
+                      <th>変更</th>
+                      <th>勤怠を確認する</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% user_id.each do |applying| %>
+                      <%= f.fields_for "attendances[]", applying do |attendance| %>
+                        <tr>
+                          <td><%= l(applying.worked_on, format: :short) %></td>
+                          <td><%= $days_of_the_week[applying.worked_on.wday] %></td>
+                          <td><%= applying.plans_end_work_time.strftime("%-H:%M") %></td>
+                          <td><%= search_user(applying).designated_work_end_time.strftime("%-H:%M") %></td>
+                          <td><%= applying.overtime %></td>
+                          <td><%= applying.overtime_content %></td>
+                          <td><%= attendance.select :overtime_status,  ['申請中', '承認', '否認'],
+                                  {}, class: "form-control" %></td>
+                          <td><%= attendance.check_box :overtime_tomorrow_check %></td>
+                          <td><%= link_to "確認する", "#", class: "btn btn-md btn-primary" %></td>
+                        </tr>
+                      <% end %>
+                    <% end %>
+                  </tbody>
+                </table>
+              <% end %>
+              <div class="btn-approve-overtime">
+                <%= f.submit "変更を送信する", class: "btn btn-lg btn-primary" %>
+              </div>
             <% end %>
           </div>
         </div>
