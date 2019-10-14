@@ -26,4 +26,16 @@ module AttendancesHelper
   def search_user(attendance)
     user = User.find(attendance.user_id)
   end
+  
+  def overtime_status(day)
+    user = User.find(day.overtime_target_user_id)
+    case day.overtime_status
+    when "申請中"
+      "#{user.name}へ残業申請中"
+    when "承認"
+      "#{user.name}より残業承認済"
+    when "否認"
+      "#{user.name}より残業否認"
+    end
+  end
 end

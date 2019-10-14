@@ -128,7 +128,7 @@
           <td><%= day.plans_end_work_time.strftime("%M") if day.plans_end_work_time.present? %></td>
           <td><%= day.overtime %></td>
           <td><%= day.overtime_content %></td>
-          <td></td>
+          <td><%= overtime_status(day) if day.overtime_status.present? %></td>
         </tr>
       <% end %>
     </tbody>
@@ -245,7 +245,10 @@
                           <td><%= attendance.select :overtime_status,  ['申請中', '承認', '否認'],
                                   {}, class: "form-control" %></td>
                           <td><%= attendance.check_box :overtime_tomorrow_check %></td>
-                          <td><%= link_to "確認する", "#", class: "btn btn-md btn-primary" %></td>
+                          <td>
+                            <%= link_to "確認する", user_path(applying.user_id, date: applying.worked_on.beginning_of_month),
+                                class: "btn btn-md btn-primary" %>
+                          </td>
                         </tr>
                       <% end %>
                     <% end %>
