@@ -14,13 +14,14 @@ module AttendancesHelper
   # ユーザーに対する残業申請を配列と定義
   
   def applying_overtime_attendances
-     Attendance.where(overtime_target_user_id: @user.id, overtime_status: "申請中")
+     Attendance.where(overtime_target_user_id: @user.id, overtime_status: "申請中").or(Attendance.where(overtime_target_user_id: @user.id, overtime_status: "否認"))
   end
   
   # 上記を申請ユーザー毎にグループ化
   
   def grouped_attendances
-    Attendance.where(overtime_target_user_id: @user.id, overtime_status: "申請中").group_by(&:user_id)
+    Attendance.where(overtime_target_user_id: @user.id, overtime_status: "申請中").
+      or(Attendance.where(overtime_target_user_id: @user.id, overtime_status: "否認")).group_by(&:user_id)
   end
   
   def search_user(attendance)

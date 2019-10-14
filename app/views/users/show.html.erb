@@ -3,9 +3,11 @@
   <table class="table table-bordered table-condensed" id="user-table">
     <tr>
       <td>
-        <%= link_to "←", user_path(date: @first_day.prev_month), class: "btn btn-sm btn-primary" %>
+        <%= link_to "←", user_path(date: @first_day.prev_month),
+            class: "btn btn-sm btn-primary" unless params[:hidden] == "1" %>
         <%= l(@first_day, format: :middle) %> 時間管理表
-        <%= link_to "→", user_path(date: @first_day.next_month), class: "btn btn-sm btn-primary" %>
+        <%= link_to "→", user_path(date: @first_day.next_month),
+            class: "btn btn-sm btn-primary" unless params[:hidden] == "1" %>
       </td>
       <td>指定勤務開始時間<br>指定勤務終了時間</td>
       <td colspan="3">基本時間 <%= format_basic_info(@user.basic_work_time) %></td>
@@ -20,29 +22,31 @@
       <td>締め：<%= l(@last_day, format: :short) %></td>
     </tr>
   </table>
+
+  <% unless params[:hidden] == "1" %>  
+    <div class="information">
+      <ul style="list-style-type: none">
+      <li><%= link_to "【所属長承認申請のお知らせ】", "#" %></li>
+      <li><%= link_to "【勤怠変更申請のお知らせ】", "#" %></li>
+      <% if applying_overtime_attendances.count == 0 %>
+      <li>【残業申請のお知らせ】</li>
+      <% else %>
+        <li>
+          <button type="button" data-toggle="modal" data-target="#ApproveOvertimeModal">
+            残業申請のお知らせ】
+          </button>
+          <span class="info-count-red"><%= "#{applying_overtime_attendances.count}件の通知があります" %></span>
+        </li>
+      <% end %>
+      </ul>
+    </div>
   
-  <div class="information">
-    <ul style="list-style-type: none">
-    <li><%= link_to "【所属長承認申請のお知らせ】", "#" %></li>
-    <li><%= link_to "【勤怠変更申請のお知らせ】", "#" %></li>
-    <% if applying_overtime_attendances.count == 0 %>
-    <li>【残業申請のお知らせ】</li>
-    <% else %>
-      <li>
-        <button type="button" data-toggle="modal" data-target="#ApproveOvertimeModal">
-          残業申請のお知らせ】
-        </button>
-        <span class="info-count-red"><%= "#{applying_overtime_attendances.count}件の通知があります" %></span>
-      </li>
-    <% end %>
-    </ul>
-  </div>
-  
-  <div class="btn-users-show">
-    <%= link_to "勤怠を編集", attendances_edit_one_month_user_path(date: @first_day), class: "btn btn-primary" %>
-    <%= link_to "CSV出力", user_path(date: @first_day, format: :csv) ,class: "btn btn-primary" %><br>
-    <%= link_to "勤怠修正ログ(承認済)", "#" ,class: "btn btn-primary" %>
-  </div>
+    <div class="btn-users-show">
+      <%= link_to "勤怠を編集", attendances_edit_one_month_user_path(date: @first_day), class: "btn btn-primary" %>
+      <%= link_to "CSV出力", user_path(date: @first_day, format: :csv) ,class: "btn btn-primary" %><br>
+      <%= link_to "勤怠修正ログ(承認済)", "#" ,class: "btn btn-primary" %>
+    </div>
+  <% end %>
   
   <table class="table table-condensed table-bordered table-hover" id="table-attendances">
     <thead>
@@ -79,14 +83,16 @@
       <% @attendances.each do |day| %>
         <tr>
           <td>
-            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal"
-              data-target="#ApplyOvertimeModal"
-              data-date="<%= day.worked_on.month %>/<%= day.worked_on.day %>"
-              data-wday="<%= $days_of_the_week[day.worked_on.wday] %>"
-              data-id="<%= day.id %>"
-              data-hidden_date="<%= day.worked_on %>">
-              残業申請
-            </button>
+            <% unless params[:hidden] == "1" %>
+              <button type="button" class="btn btn-primary btn-lg" data-toggle="modal"
+                data-target="#ApplyOvertimeModal"
+                data-date="<%= day.worked_on.month %>/<%= day.worked_on.day %>"
+                data-wday="<%= $days_of_the_week[day.worked_on.wday] %>"
+                data-id="<%= day.id %>"
+                data-hidden_date="<%= day.worked_on %>">
+                残業申請
+              </button>
+            <% end %>
           </td>
           <td><%= l(day.worked_on, format: :short) %></td>
           <td>
@@ -243,10 +249,10 @@
                           <td><%= applying.overtime %></td>
                           <td><%= applying.overtime_content %></td>
                           <td><%= attendance.select :overtime_status,  ['申請中', '承認', '否認'],
-                                  {}, class: "form-control" %></td>
+                                  {prompt: applying.overtime_status}, class: "form-control" %></td>
                           <td><%= attendance.check_box :overtime_tomorrow_check %></td>
                           <td>
-                            <%= link_to "確認する", user_path(applying.user_id, date: applying.worked_on.beginning_of_month),
+                            <%= link_to "確認する", user_path(applying.user_id, date: applying.worked_on.beginning_of_month, hidden: 1),
                                 class: "btn btn-md btn-primary" %>
                           </td>
                         </tr>

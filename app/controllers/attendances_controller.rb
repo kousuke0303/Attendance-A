@@ -73,17 +73,17 @@ class AttendancesController < ApplicationController
   
   def approve_overtime
     ActiveRecord::Base.transaction do
-      before_count = Attendance.where(overtime_target_user_id: @user.id, overtime_status: "申請中").count
       params[:attendances].each do |id, item|
         attendance = Attendance.find(id)
         if item["overtime_tomorrow_check"] == "1"
-          unless attendance.update_attributes!(overtime_status: item["overtime_status"])
+          if attendance.update_attributes!(overtime_status: item["overtime_status"])
+            @update_count = @update_count.to_i + 1
+          else
             raise ActiveRecord::RecordInvalid
           end
         end
       end
-      after_count = before_count - Attendance.where(overtime_target_user_id: @user.id, overtime_status: "申請中").count
-      flash[:success] = "#{after_count}件の残業申請情報を更新しました。"
+      flash[:success] = "#{@update_count}件の残業申請情報を更新しました。" if @update_count
       redirect_to user_url(date: params[:date])
     end
   rescue ActiveRecord::RecordInvalid
