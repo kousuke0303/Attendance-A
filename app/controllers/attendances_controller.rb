@@ -32,7 +32,18 @@ class AttendancesController < ApplicationController
     ActiveRecord::Base.transaction do
       attendances_params.each do |id, item|
         attendance = Attendance.find(id)
+        before_str = attendance.started_at
+        before_fin = attendance.finished_at
         attendance.update_attributes!(item)
+        unless before_str == attendance.started_at && before_fin == attendance.finished_at 
+          attendance.update_attributes!(prev_started_at: before_str,
+                                        prev_finished_at: before_fin, 
+                                        edit_status: "申請中")
+        end
+        attendance.update_attributes!(first_started_at: before_str) if attendance.first_started_at.nil?
+        attendance.update_attributes!(first_finished_at: before_fin) if attendance.first_finished_at.nil?
+        attendance.update_attributes!(first_started_at: attendance.started_at) if attendance.first_started_at.nil?
+        attendance.update_attributes!(first_finished_at: attendance.finished_at) if attendance.first_finished_at.nil?
         unless attendance.worked_on == Date.current
           if attendance.started_at.present? && attendance.finished_at.blank?
             raise ActiveRecord::RecordInvalid
@@ -43,8 +54,32 @@ class AttendancesController < ApplicationController
     flash[:success] = "1ヶ月分の勤怠情報を更新しました。"
     redirect_to user_url(date: params[:date])
   rescue ActiveRecord::RecordInvalid
-    flash[:danger] = "無効な入力データがあった為、更新をキャンセルしました。"
+    flash[:danger] = "無効な入力データがあった為、更新をキャンセルしました。
+                      勤怠編集時は、申請先ユーザー、備考(50文字まで)を入力してください。"
     redirect_to attendances_edit_one_month_user_url(date: params[:date])
+  end
+  
+  def approve_edited
+    ActiveRecord::Base.transaction do
+      params[:attendances].each do |id, item|
+        attendance = Attendance.find(id)
+        if item["approve_check"] == "1"
+          if attendance.update_attributes!(edit_status: item["edit_status"])
+            if attendance.edit_status == "承認"
+              attendance.update_attributes!(prev_started_at: nil, prev_finished_at: nil)
+            end
+            @update_count = @update_count.to_i + 1
+          else
+            raise ActiveRecord::RecordInvalid
+          end
+        end
+      end
+      flash[:success] = "#{@update_count}件の勤怠変更申請情報を更新しました。" if @update_count
+      redirect_to user_url(date: params[:date])
+    end
+  rescue ActiveRecord::RecordInvalid
+    flash[:danger] = "無効な入力データがあった為、変更をキャンセルしました。"
+    redirect_to user_url(date: params[:date])
   end
   
   def apply_overtime
@@ -75,7 +110,7 @@ class AttendancesController < ApplicationController
     ActiveRecord::Base.transaction do
       params[:attendances].each do |id, item|
         attendance = Attendance.find(id)
-        if item["overtime_tomorrow_check"] == "1"
+        if item["approve_check"] == "1"
           if attendance.update_attributes!(overtime_status: item["overtime_status"])
             @update_count = @update_count.to_i + 1
           else
@@ -87,7 +122,7 @@ class AttendancesController < ApplicationController
       redirect_to user_url(date: params[:date])
     end
   rescue ActiveRecord::RecordInvalid
-    flash[:danger] = "無効な入力データがあった為、入力をキャンセルしました。"
+    flash[:danger] = "無効な入力データがあった為、変更をキャンセルしました。"
     redirect_to user_url(date: params[:date])
   end
   
@@ -95,6 +130,7 @@ class AttendancesController < ApplicationController
   
     # 1ヶ月分の勤怠情報を扱います。
     def attendances_params
-      params.require(:user).permit(attendances: [:started_at, :finished_at, :note])[:attendances]
+      params.require(:user).permit(attendances: [:started_at, :finished_at, :overnight,
+                                                 :edit_target_user_id, :note])[:attendances]
     end
 end

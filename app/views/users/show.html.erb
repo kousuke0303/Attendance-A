@@ -27,13 +27,23 @@
     <div class="information">
       <ul style="list-style-type: none">
       <li><%= link_to "【所属長承認申請のお知らせ】", "#" %></li>
-      <li><%= link_to "【勤怠変更申請のお知らせ】", "#" %></li>
+      <% if applying_edited_attendances.count == 0 %>
+        <li>【勤怠変更申請のお知らせ】</li>
+      <% else %>
+        <li>
+          <button type="button" data-toggle="modal" data-target="#ApproveEditedModal">
+              【勤怠変更申請のお知らせ】
+          </button>
+          <span class="info-count-red"><%= "#{applying_edited_attendances.count}件の通知があります" %></span>
+        </li>
+      <% end %>
+      
       <% if applying_overtime_attendances.count == 0 %>
-      <li>【残業申請のお知らせ】</li>
+        <li>【残業申請のお知らせ】</li>
       <% else %>
         <li>
           <button type="button" data-toggle="modal" data-target="#ApproveOvertimeModal">
-            残業申請のお知らせ】
+            【残業申請のお知らせ】
           </button>
           <span class="info-count-red"><%= "#{applying_overtime_attendances.count}件の通知があります" %></span>
         </li>
@@ -125,7 +135,7 @@
           <td></td>
           <td>
             <% if day.started_at.present? && day.finished_at.present? %>
-              <%= str_times = working_times(day.started_at, day.finished_at) %>
+              <%= str_times = working_times(day) %>
               <% @total_working_times = @total_working_times.to_f + str_times. to_f %>
             <% end %>
           </td>
@@ -134,7 +144,10 @@
           <td><%= day.plans_end_work_time.strftime("%M") if day.plans_end_work_time.present? %></td>
           <td><%= day.overtime %></td>
           <td><%= day.overtime_content %></td>
-          <td><%= overtime_status(day) if day.overtime_status.present? %></td>
+          <td>
+            <%= overtime_status(day) if day.overtime_status.present? %><br>
+            <%= edit_status(day) if day.edit_status.present? %>
+          </td>
         </tr>
       <% end %>
     </tbody>
@@ -191,15 +204,100 @@
                     <td><%= f.time_field :plans_end_work_time, class: "form-control" %></td>
                     <td><%= f.check_box :overtime_tomorrow_check %></td>
                     <td><%= f.text_field :overtime_content, class: "form-control" %></td>
-                    <td><%= f.collection_select(:overtime_target_user_id, User.where(superior: true)
-                                                .where.not(id: current_user.id), :id, :name,
-                                                {prompt: "申請先上長を選択"}, {class: "form-control"}) %>
+                    <td>
+                      <%= f.collection_select(:overtime_target_user_id, User.where(superior: true)
+                                              .where.not(id: current_user.id), :id, :name,
+                                              {prompt: "申請先上長を選択"}, {class: "form-control"}) %>
                     </td>
                   　<%= f.hidden_field :hidden_date, class: "form-control modal-hiddenDate" %>
                   </tr>
                 </tbody>
               </table>
               <%= f.submit "変更を送信する", class: "btn btn-lg btn-block btn-primary" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="ApproveEditedModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-center">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <%= form_with url: attendances_approve_edited_user_path(current_user),
+                local: true, method: :patch do |f| %>
+              <% grouped_edited_attendances.each do |attendance_group, user_id| %>
+                <h3><%= "【#{search_user(user_id[0]).name}からの勤怠変更申請】" %></h3>
+                <table class="table table-condensed table-hover table-bordered"
+                         id="applying_edited_table">
+                  <thead>
+                    <tr>
+                      <th rowspan=3>日付</th>
+                      <th rowspan=3>曜日</th>
+                      <th colspan=4>変更前</th>
+                      <th colspan=4>変更後</th>
+                      <th rowspan=3>備考</th>
+                      <th rowspan=3>指示者確認㊞</th>
+                      <th rowspan=3>変更</th>
+                      <th rowspan=3>勤怠を確認する</th>
+                    </tr>
+                    <tr>
+                      <th colspan=2>出社</th>
+                      <th colspan=2>退社</th>
+                      <th colspan=2>出社</th>
+                      <th colspan=2>退社</th>
+                    </tr>
+                    <tr>
+                      <th>時</th>
+                      <th>分</th>
+                      <th>時</th>
+                      <th>分</th>
+                      <th>時</th>
+                      <th>分</th>
+                      <th>時</th>
+                      <th>分</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% user_id.each do |edited| %>
+                      <%= f.fields_for "attendances[]", edited do |attendance| %>
+                        <tr>
+                          <td><%= l(edited.worked_on, format: :short) %></td>
+                          <td><%= $days_of_the_week[edited.worked_on.wday] %></td>
+                          <td><%= edited.prev_started_at.hour if edited.prev_started_at.present? %></td>
+                          <td><%= edited.prev_started_at.min if edited.prev_started_at.present? %></td>
+                          <td><%= edited.prev_finished_at.hour if edited.prev_finished_at.present? %></td>
+                          <td><%= edited.prev_finished_at.min if edited.prev_finished_at.present? %></td>
+                          <td><%= edited.started_at.hour %></td>
+                          <td><%= edited.started_at.min %></td>
+                          <td><%= edited.finished_at.hour %></td>
+                          <td><%= edited.finished_at.min %></td>
+                          <td><%= edited.note %></td>
+                          <td><%= attendance.select :edit_status,  ['申請中', '承認', '否認'],
+                                  {prompt: edited.edit_status}, class: "form-control" %></td>
+                          <td><%= attendance.check_box :approve_check %></td>
+                          <td>
+                            <%= link_to "確認する", user_path(edited.user_id, date: edited.worked_on.beginning_of_month, hidden: 1),
+                                    class: "btn btn-md btn-primary" %>
+                          </td>
+                        </tr>
+                      <% end %>
+                    <% end %>
+                  </tbody>
+                </table>
+              <% end %>
+              <div class="btn-approve-edited">
+                <%= f.submit "変更を送信する", class: "btn btn-lg btn-primary" %>
+              </div>
             <% end %>
           </div>
         </div>
@@ -250,7 +348,7 @@
                           <td><%= applying.overtime_content %></td>
                           <td><%= attendance.select :overtime_status,  ['申請中', '承認', '否認'],
                                   {prompt: applying.overtime_status}, class: "form-control" %></td>
-                          <td><%= attendance.check_box :overtime_tomorrow_check %></td>
+                          <td><%= attendance.check_box :approve_check %></td>
                           <td>
                             <%= link_to "確認する", user_path(applying.user_id, date: applying.worked_on.beginning_of_month, hidden: 1),
                                 class: "btn btn-md btn-primary" %>

@@ -10,8 +10,10 @@
           <th>曜日</th>
           <th>出社</th>
           <th>退社</th>
+          <th>翌日</th>
           <th>在社時間</th>
           <th>備考</th>
+          <th>指示者確認㊞</th>
         </tr>
       </thead>
       
@@ -28,9 +30,10 @@
                 <td><%= attendance.time_field :started_at, class: "form-control" %></td>
                 <td><%= attendance.time_field :finished_at, class: "form-control" %></td>
               <% end %>
+              <td><%= attendance.check_box :overnight %></td>
               <td>
                 <% if day.started_at.present? && day.finished_at.present? %>
-                  <%= working_times(day.started_at, day.finished_at) %>
+                  <%= working_times(day) %>
                 <% end %>
               </td>
               <% if Date.current < day.worked_on %>
@@ -38,6 +41,11 @@
               <% else %>
                 <td><%= attendance.text_field :note, class: "form-control" %></td>
               <% end %>
+              <td>
+                <%= attendance.collection_select(:edit_target_user_id, User.where(superior: true)
+                                        .where.not(id: current_user.id), :id, :name,
+                                        {prompt: "申請先上長を選択"}, {class: "form-control"}) %>
+              </td>
             </tr>
           <% end %>
         <% end %>

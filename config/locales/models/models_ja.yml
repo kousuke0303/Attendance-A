@@ -20,10 +20,14 @@ ja:
       attendance:
         worked_on: 日付
         started_at: 出勤時間
+        prev_started_at: 変更前出勤時間
         finished_at: 退勤時間
+        prev_finished_at: 変更前退勤時間
         plans_end_work_time: 終了予定時間
         note: 備考
         overtime_content: 業務処理内容
-        overtime_target_user_id: 残業申請先ユーザーID
+        overtime_target_user_id: 残業申請先ユーザー
+        edit_target_user_id: 勤怠変更申請先ユーザー
         overtime_status: 残業申請ステータス
+        edit_status: 勤怠編集確認ステータス
         user: ユーザーID

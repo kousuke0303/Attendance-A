@@ -15,7 +15,11 @@ ActiveRecord::Schema.define(version: 20190917035541) do
   create_table "attendances", force: :cascade do |t|
     t.date "worked_on"
     t.datetime "started_at"
+    t.datetime "prev_started_at"
+    t.datetime "first_started_at"
     t.datetime "finished_at"
+    t.datetime "prev_finished_at"
+    t.datetime "first_finished_at"
     t.datetime "plans_end_work_time"
     t.string "note"
     t.string "overtime"
@@ -23,6 +27,10 @@ ActiveRecord::Schema.define(version: 20190917035541) do
     t.integer "overtime_target_user_id"
     t.string "overtime_status"
     t.integer "overtime_tomorrow_check"
+    t.integer "overnight"
+    t.integer "edit_target_user_id"
+    t.string "edit_status"
+    t.integer "approve_check"
     t.integer "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -40,9 +48,9 @@ ActiveRecord::Schema.define(version: 20190917035541) do
     t.string "remember_digest"
     t.integer "employee_number"
     t.string "uid"
-    t.datetime "basic_work_time", default: "2019-10-13 23:00:00"
-    t.datetime "designated_work_start_time", default: "2019-10-14 00:00:00"
-    t.datetime "designated_work_end_time", default: "2019-10-14 08:00:00"
+    t.datetime "basic_work_time", default: "2019-10-17 23:00:00"
+    t.datetime "designated_work_start_time", default: "2019-10-18 00:00:00"
+    t.datetime "designated_work_end_time", default: "2019-10-18 08:00:00"
     t.boolean "superior", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
   end

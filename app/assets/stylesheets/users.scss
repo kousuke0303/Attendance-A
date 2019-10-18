@@ -32,6 +32,23 @@
   text-align: center;
 }
 
+/* 申請された勤怠変更情報確認テーブル */
+
+#applying_edited_table {
+  th {
+    text-align: center;
+  vertical-align: middle;
+  }
+  td {
+    text-align: center;
+  vertical-align: middle;
+  }
+}
+
+.btn-approve-edited {
+  text-align: center;
+}
+
 /* ユーザー情報テーブル */
 
 #user-table td {

@@ -16,6 +16,7 @@ Rails.application.routes.draw do
       patch 'attendances/update_one_month'
       patch 'attendances/apply_overtime'
       patch 'attendances/approve_overtime'
+      patch 'attendances/approve_edited'
     end
     collection do
       get 'attendancing_index'
