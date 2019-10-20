@@ -31,3 +31,7 @@ ja:
         overtime_status: 残業申請ステータス
         edit_status: 勤怠編集確認ステータス
         user: ユーザーID
+      point:
+        name: 拠点名
+        number: 拠点番号
+        kind: 勤怠種類

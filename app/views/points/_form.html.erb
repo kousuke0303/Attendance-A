@@ -1,0 +1,14 @@
+<%= form_with(model: @point, local: true) do |f| %>
+  <%= render "shared/error_messages", object: @point %>
+  
+  <%= f.label :name, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :name, class: "form-control" %>
+  
+  <%= f.label :number, class: "label-#{yield(:class_text)}" %>
+  <%= f.number_field :number, class: "form-control" %>
+  
+  <%= f.label :kind, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :kind, class: "form-control" %>
+
+  <%= f.submit yield(:button_text), class: "btn btn-primary btn-block btn-#{yield(:class_text)}" %>
+<% end %>

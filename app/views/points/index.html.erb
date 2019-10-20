@@ -1,0 +1,32 @@
+<% provide(:title, "Point New") %>
+<h1>拠点一覧</h1>
+
+<table class="table table-bordered table-condensed" id="points-table">
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th>拠点番号</th>
+      <th>拠点名</th>
+      <th>拠点種類</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @points.each do |point| %>
+      <tr>
+        <td><%= link_to "修正", edit_point_path(point), class: "btn btn-md btn-primary" %></td>
+        <td>
+          <%= link_to "削除", point, method: :delete, class: "btn btn-md btn-primary",
+              data: { confirm: "#{point.name}を削除してよろしいですか？" } %>
+        </td>
+        <td><%= point.number %></td>
+        <td><%= point.name %></td>
+        <td><%= point.kind %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<div class="new-point-button-area">
+  <%= link_to "拠点情報追加", new_point_path, class: "btn btn-lg btn-primary" %>
+</div>

@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+
   root 'static_pages#top'
   get 'signup', to: 'users#new'
   get 'basic_info_update', to: 'static_pages#update'
@@ -25,4 +26,6 @@ Rails.application.routes.draw do
     end
     resources :attendances, only: :update
   end
+  
+  resources :points
 end

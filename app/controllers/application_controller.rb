@@ -43,7 +43,7 @@ class ApplicationController < ActionController::Base
   
   # システム管理権限所有かどうか判定します。
   def admin_user
-    redirect_to root_url unless current_user.admin?
+    redirect_to(root_url) unless current_user && current_user.admin?
   end
   
   # 管理権限者、または現在ログインしているユーザーを許可します。
