@@ -31,6 +31,9 @@ ActiveRecord::Schema.define(version: 20190917035541) do
     t.integer "edit_target_user_id"
     t.string "edit_status"
     t.integer "approve_check"
+    t.date "approved_edit"
+    t.integer "year"
+    t.integer "month"
     t.integer "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -48,9 +51,9 @@ ActiveRecord::Schema.define(version: 20190917035541) do
     t.string "remember_digest"
     t.integer "employee_number"
     t.string "uid"
-    t.datetime "basic_work_time", default: "2019-10-17 23:00:00"
-    t.datetime "designated_work_start_time", default: "2019-10-18 00:00:00"
-    t.datetime "designated_work_end_time", default: "2019-10-18 08:00:00"
+    t.datetime "basic_work_time", default: "2019-10-19 23:00:00"
+    t.datetime "designated_work_start_time", default: "2019-10-20 00:00:00"
+    t.datetime "designated_work_end_time", default: "2019-10-20 08:00:00"
     t.boolean "superior", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
   end

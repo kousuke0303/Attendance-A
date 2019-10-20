@@ -1,0 +1,49 @@
+<% provide(:title, @user.name) %>
+<h1>勤怠ログ</h1>
+
+<div class="row">
+  <div class="col-md-10 col-md-offset-1">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="search-attendances">
+          <%= form_with url: attendances_approved_log_user_path(@user), method: :get, local: true do |f| %>
+            <%= f.date_select :date, {discard_day: true}, class: "form-control" %>
+              <div class="row">
+                <div class="col-md-6">
+                  <%= link_to "リセット", attendances_approved_log_user_path(@user), class: "btn btn-block btn-sm outline" %>
+                </div>
+                <div class="col-md-6">
+                  <%= f.submit "検索", class: "btn btn-sm btn-primary btn-block" %>
+                </div>
+              </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    
+    <table class="table table-bordered table-condensed table-hover" id="log-table">
+      <tr>
+        <th>日付</th>
+        <th>変更前出社時間</th>
+        <th>変更前退社時間</th>
+        <th>変更後出社時間</th>
+        <th>変更後退社時間</th>
+        <th>指示者</th>
+        <th>承認日</th>
+      </tr>
+      <% if params["date(1i)"] %>
+        <% @attendances.each do |day| %>
+          <tr>
+            <td><%= l(day.worked_on, format: :short) %></td>
+            <td><%= day.first_started_at.strftime("%H-%M") if day.first_started_at.present? %></td>
+            <td><%= day.first_finished_at.strftime("%H-%M") if day.first_finished_at.present? %></td>
+            <td><%= day.started_at.strftime("%H-%M") %></td>
+            <td><%= day.finished_at.strftime("%H-%M") %></td>
+            <td><%= search_approve_user(day).name %></td>
+            <td><%= day.approved_edit %></td>
+          </tr>
+        <% end %>
+      <% end %>
+    </table>
+  </div>
+</div>

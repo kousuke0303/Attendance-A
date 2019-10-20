@@ -1,10 +1,15 @@
 class AttendancesController < ApplicationController
-  before_action :set_user, only: [:edit_one_month, :update_one_month, :approve_overtime]
+  before_action :set_user, only: [:edit_one_month, :update_one_month, :approve_overtime, :approved_log]
   before_action :logged_in_user, only: [:update, :edit_one_month]
   before_action :superior_or_correct_user, only: [:update, :edit_one_month, :update_one_month]
   before_action :set_one_month, only: :edit_one_month
   
   UPDATE_ERROR_MSG = "勤怠登録に失敗しました。やり直してください。"
+  
+  def approved_log
+    @attendances = Attendance.where(user_id: params[:id], year: params["date(1i)"],
+                                    month: params["date(2i)"], edit_status: "承認").order(worked_on: :asc)
+  end
   
   def update
     @user = User.find(params[:user_id])
@@ -36,14 +41,12 @@ class AttendancesController < ApplicationController
         before_fin = attendance.finished_at
         attendance.update_attributes!(item)
         unless before_str == attendance.started_at && before_fin == attendance.finished_at 
-          attendance.update_attributes!(prev_started_at: before_str,
-                                        prev_finished_at: before_fin, 
-                                        edit_status: "申請中")
+          attendance.update_attributes!(prev_started_at: before_str, prev_finished_at: before_fin,
+                                        edit_status: "申請中", approved_edit: nil,
+                                        year: attendance.worked_on.year, month: attendance.worked_on.month)
         end
         attendance.update_attributes!(first_started_at: before_str) if attendance.first_started_at.nil?
         attendance.update_attributes!(first_finished_at: before_fin) if attendance.first_finished_at.nil?
-        attendance.update_attributes!(first_started_at: attendance.started_at) if attendance.first_started_at.nil?
-        attendance.update_attributes!(first_finished_at: attendance.finished_at) if attendance.first_finished_at.nil?
         unless attendance.worked_on == Date.current
           if attendance.started_at.present? && attendance.finished_at.blank?
             raise ActiveRecord::RecordInvalid
@@ -66,7 +69,8 @@ class AttendancesController < ApplicationController
         if item["approve_check"] == "1"
           if attendance.update_attributes!(edit_status: item["edit_status"])
             if attendance.edit_status == "承認"
-              attendance.update_attributes!(prev_started_at: nil, prev_finished_at: nil)
+              attendance.update_attributes!(prev_started_at: nil, prev_finished_at: nil,
+                                            approved_edit: Date.current)
             end
             @update_count = @update_count.to_i + 1
           else

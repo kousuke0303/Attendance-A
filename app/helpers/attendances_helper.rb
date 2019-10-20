@@ -45,6 +45,10 @@ module AttendancesHelper
     user = User.find(attendance.user_id)
   end
   
+  def search_approve_user(attendance)
+    user = User.find(attendance.edit_target_user_id)
+  end
+  
   def overtime_status(day)
     user = User.find(day.overtime_target_user_id)
     case day.overtime_status
@@ -67,5 +71,9 @@ module AttendancesHelper
     when "否認"
       "#{user.name}より勤怠変更否認"
     end
+  end
+  
+  def approved_log(user)
+    Attendance.where(user_id: user.id, edit_status: "承認")
   end
 end

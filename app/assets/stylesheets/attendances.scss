@@ -19,3 +19,19 @@
     text-align: center;
   }
 }
+
+#log-table {
+  th {
+    vertical-align: middle;
+    text-align: center;
+  }
+  td {
+    vertical-align: middle;
+    text-align: center;
+  }
+}
+
+.btn.outline {
+    border: 1px solid gray; 
+    color: black;
+}

@@ -19,6 +19,9 @@ class CreateAttendances < ActiveRecord::Migration[5.1]
       t.integer :edit_target_user_id
       t.string :edit_status
       t.integer :approve_check
+      t.date :approved_edit
+      t.integer :year
+      t.integer :month
       t.references :user, foreign_key: true
 
       t.timestamps
