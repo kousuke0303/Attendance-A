@@ -161,7 +161,16 @@
         <td rowspan="2"></td>
         <td rowspan="2"></td>
         <td rowspan="2"></td>
-        <td rowspan="2"></td>
+        <td rowspan="2">
+          <%= form_with(model: @attendance, url:attendances_apply_month_user_path(@user),
+                        method: :patch, local: true) do |f| %>
+            <%= f.hidden_field :id, value: @attendance.id %>
+            <%= f.collection_select(:month_target_user_id, User.where(superior: true)
+                                              .where.not(id: current_user.id), :id, :name,
+                                              {prompt: "申請先上長を選択"}, {class: "form-control"}) %>
+            <%= f.submit "申請", class: "btn btn-md btn-block btn-primary btn-apply-month" %>
+          <% end %>
+        </td>
       </tr>
       <tr>
         <td colspan="2"><%= @attendances.count %></td>

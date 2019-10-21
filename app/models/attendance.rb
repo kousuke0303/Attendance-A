@@ -13,6 +13,8 @@ class Attendance < ApplicationRecord
   validate :apply_overtime_required_item
   # 勤怠編集申請必須項目
   validate :apply_edit_required_item
+  # 一月分勤怠申請必須項目
+  validate :apply_month_required_item
 
   
   def finished_at_is_invalid_without_a_started_at
@@ -39,6 +41,12 @@ class Attendance < ApplicationRecord
       unless edit_target_user_id.present? && note.present?
         errors.add(:edit_target_user_id, "、備考欄の入力が必要です") 
       end
+    end
+  end
+  
+  def apply_month_required_item
+    if month_status.present?
+      errors.add(:month_target_user_id, "が必要です") unless month_target_user_id.present?
     end
   end
 end

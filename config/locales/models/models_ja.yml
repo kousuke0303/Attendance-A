@@ -30,6 +30,8 @@ ja:
         edit_target_user_id: 勤怠変更申請先ユーザー
         overtime_status: 残業申請ステータス
         edit_status: 勤怠編集確認ステータス
+        month_target_user_id: 一月分勤怠申請先ユーザー
+        month_status: 一月分勤怠申請ステータス
         user: ユーザーID
       point:
         name: 拠点名

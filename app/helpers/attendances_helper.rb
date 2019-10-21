@@ -49,6 +49,10 @@ module AttendancesHelper
     user = User.find(attendance.edit_target_user_id)
   end
   
+  def search_month_target_user(attendance)
+    user = User.find(attendance.month_target_user_id)
+  end
+  
   def overtime_status(day)
     user = User.find(day.overtime_target_user_id)
     case day.overtime_status

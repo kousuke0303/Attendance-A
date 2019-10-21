@@ -69,6 +69,7 @@ class ApplicationController < ActionController::Base
        end
        @attendances = @user.attendances.where(worked_on: @first_day..@last_day).order(:worked_on)
     end
+    @attendance = @attendances[0]
     
   rescue ActiveRecord::RecordInvalid 
     flash[:danger] = "ページ情報の取得に失敗しました、再アクセスしてください。"

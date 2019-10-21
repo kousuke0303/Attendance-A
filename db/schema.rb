@@ -35,6 +35,8 @@ ActiveRecord::Schema.define(version: 20191020073349) do
     t.integer "year"
     t.integer "month"
     t.integer "user_id"
+    t.integer "month_target_user_id"
+    t.string "month_status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_attendances_on_user_id"
@@ -61,9 +63,9 @@ ActiveRecord::Schema.define(version: 20191020073349) do
     t.string "remember_digest"
     t.integer "employee_number"
     t.string "uid"
-    t.datetime "basic_work_time", default: "2019-10-19 23:00:00"
-    t.datetime "designated_work_start_time", default: "2019-10-20 00:00:00"
-    t.datetime "designated_work_end_time", default: "2019-10-20 08:00:00"
+    t.datetime "basic_work_time", default: "2019-10-20 23:00:00"
+    t.datetime "designated_work_start_time", default: "2019-10-21 00:00:00"
+    t.datetime "designated_work_end_time", default: "2019-10-21 08:00:00"
     t.boolean "superior", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
   end

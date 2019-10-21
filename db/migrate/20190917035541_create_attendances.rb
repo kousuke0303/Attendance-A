@@ -23,6 +23,8 @@ class CreateAttendances < ActiveRecord::Migration[5.1]
       t.integer :year
       t.integer :month
       t.references :user, foreign_key: true
+      t.integer :month_target_user_id
+      t.string :month_status
 
       t.timestamps
     end

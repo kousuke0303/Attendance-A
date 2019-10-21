@@ -62,6 +62,19 @@ class AttendancesController < ApplicationController
     redirect_to attendances_edit_one_month_user_url(date: params[:date])
   end
   
+  def apply_month
+    attendance = Attendance.find(params[:attendance]["id"])
+    if attendance.update_attributes(month_target_user_id: params[:attendance]["month_target_user_id"],
+                                    month_status: "申請中")
+      user = User.find(attendance.month_target_user_id)
+      flash[:success] = "#{user.name}へ#{attendance.worked_on.month}月分の勤怠承認を申請しました。"
+      redirect_to user_url(date: attendance.worked_on)
+    else
+      flash[:danger] = "一月分勤怠の申請先ユーザーを選択してください。"
+      redirect_to user_url(date: attendance.worked_on)
+    end
+  end
+  
   def approve_edited
     ActiveRecord::Base.transaction do
       params[:attendances].each do |id, item|
