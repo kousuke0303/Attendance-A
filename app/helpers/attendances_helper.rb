@@ -17,6 +17,17 @@ module AttendancesHelper
     end
   end
   
+  # ユーザーに対する一月分勤怠申請を配列と定義
+  
+  def applying_month_attendances
+    Attendance.where(month_target_user_id: @user.id, month_status: "申請中").
+      or(Attendance.where(month_target_user_id: @user.id, month_status: "否認"))
+  end
+  
+  def grouped_month_attendances
+    applying_month_attendances.group_by(&:user_id)
+  end
+  
   # ユーザーに対する残業申請を配列と定義
   
   def applying_overtime_attendances
@@ -49,13 +60,21 @@ module AttendancesHelper
     user = User.find(attendance.edit_target_user_id)
   end
   
-  def search_month_target_user(attendance)
+  def month_status(attendance)
     user = User.find(attendance.month_target_user_id)
+    case attendance.month_status
+    when "申請中"
+      "#{user.name}へ一ヶ月分勤怠申請中"
+    when "承認"
+      "#{user.name}より一ヶ月分勤怠承認済"
+    when "否認"
+      "#{user.name}より一ヶ月分勤怠否認"
+    end
   end
   
-  def overtime_status(day)
-    user = User.find(day.overtime_target_user_id)
-    case day.overtime_status
+  def overtime_status(attendance)
+    user = User.find(attendance.overtime_target_user_id)
+    case attendance.overtime_status
     when "申請中"
       "#{user.name}へ残業申請中"
     when "承認"
@@ -65,9 +84,9 @@ module AttendancesHelper
     end
   end
   
-  def edit_status(day)
-    user = User.find(day.edit_target_user_id)
-    case day.edit_status
+  def edit_status(attendance)
+    user = User.find(attendance.edit_target_user_id)
+    case attendance.edit_status
     when "申請中"
       "#{user.name}へ勤怠変更申請中"
     when "承認"

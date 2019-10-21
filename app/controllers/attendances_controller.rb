@@ -75,6 +75,26 @@ class AttendancesController < ApplicationController
     end
   end
   
+  def approve_month
+    ActiveRecord::Base.transaction do
+      params[:attendances].each do |id, item|
+        attendance = Attendance.find(id)
+        if item["approve_check"] == "1"
+          if attendance.update_attributes!(month_status: item["month_status"])
+            @update_count = @update_count.to_i + 1
+          else
+            raise ActiveRecord::RecordInvalid
+          end
+        end
+      end
+      flash[:success] = "#{@update_count}件の一ヶ月分勤怠申請情報を更新しました。" if @update_count
+      redirect_to user_url(date: params[:date])
+    end
+  rescue ActiveRecord::RecordInvalid
+    flash[:danger] = "無効な入力データがあった為、変更をキャンセルしました。"
+    redirect_to user_url(date: params[:date])
+  end
+  
   def approve_edited
     ActiveRecord::Base.transaction do
       params[:attendances].each do |id, item|
