@@ -64,7 +64,11 @@
   
     <div class="btn-users-show">
       <%= link_to "勤怠を編集", attendances_edit_one_month_user_path(date: @first_day), class: "btn btn-primary" %>
-      <%= link_to "CSV出力", user_path(date: @first_day, format: :csv) ,class: "btn btn-primary" %><br>
+      <% if @attendance.month_status == "承認" %>
+        <%= link_to "CSV出力", user_path(date: @first_day, format: :csv), class: "btn btn-primary" %><br>
+      <% else %>
+        <button class="btn btn-primary">CSV出力</button><br>
+      <% end %>
       <%= link_to "勤怠修正ログ(承認済)", attendances_approved_log_user_path(@user), class: "btn btn-primary" %>
     </div>
   <% end %>
