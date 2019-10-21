@@ -23,42 +23,35 @@
     </tr>
   </table>
 
-  <% unless params[:hidden] == "1" %>  
-    <div class="information">
-      <ul style="list-style-type: none">
-      <% if applying_month_attendances.count == 0 %>
-        <li>【所属長承認申請のお知らせ】</li>
-      <% else %>
-        <li>
-          <button type="button" data-toggle="modal" data-target="#ApproveMonthModal">
-            【所属長承認申請のお知らせ】
-          </button>
-          <span class="info-count-red"><%= "#{applying_month_attendances.count}件の通知があります" %></span>
-        </li>
-      <% end %>
-      <% if applying_edited_attendances.count == 0 %>
-        <li>【勤怠変更申請のお知らせ】</li>
-      <% else %>
-        <li>
-          <button type="button" data-toggle="modal" data-target="#ApproveEditedModal">
-            【勤怠変更申請のお知らせ】
-          </button>
-          <span class="info-count-red"><%= "#{applying_edited_attendances.count}件の通知があります" %></span>
-        </li>
-      <% end %>
-      
-      <% if applying_overtime_attendances.count == 0 %>
-        <li>【残業申請のお知らせ】</li>
-      <% else %>
-        <li>
-          <button type="button" data-toggle="modal" data-target="#ApproveOvertimeModal">
-            【残業申請のお知らせ】
-          </button>
-          <span class="info-count-red"><%= "#{applying_overtime_attendances.count}件の通知があります" %></span>
-        </li>
-      <% end %>
-      </ul>
-    </div>
+  <% unless params[:hidden] == "1" %>
+    <% if current_user.superior? %>
+      <div class="information">
+        <ul style="list-style-type: none">
+        <li><%= link_to "【所属長承認申請のお知らせ】", "#" %></li>
+        <% if applying_edited_attendances.count == 0 %>
+          <li>【勤怠変更申請のお知らせ】</li>
+        <% else %>
+          <li>
+            <button type="button" data-toggle="modal" data-target="#ApproveEditedModal">
+                【勤怠変更申請のお知らせ】
+            </button>
+            <span class="info-count-red"><%= "#{applying_edited_attendances.count}件の通知があります" %></span>
+          </li>
+        <% end %>
+        
+        <% if applying_overtime_attendances.count == 0 %>
+          <li>【残業申請のお知らせ】</li>
+        <% else %>
+          <li>
+            <button type="button" data-toggle="modal" data-target="#ApproveOvertimeModal">
+              【残業申請のお知らせ】
+            </button>
+            <span class="info-count-red"><%= "#{applying_overtime_attendances.count}件の通知があります" %></span>
+          </li>
+        <% end %>
+        </ul>
+      </div>
+    <% end %>
   
     <div class="btn-users-show">
       <%= link_to "勤怠を編集", attendances_edit_one_month_user_path(date: @first_day), class: "btn btn-primary" %>
@@ -170,23 +163,7 @@
         <td rowspan="2"></td>
         <td rowspan="2"></td>
         <td rowspan="2"></td>
-        <td rowspan="2">
-          <div class="month-status-area">
-            <% if @attendance.month_target_user_id.present? %>
-              <%= month_status(@attendance) %>
-            <% else %>
-              所属長未承認
-            <% end %>
-          </div>
-          <%= form_with(model: @attendance, url:attendances_apply_month_user_path(@user),
-                        method: :patch, local: true) do |f| %>
-            <%= f.hidden_field :id, value: @attendance.id %>
-            <%= f.collection_select(:month_target_user_id, User.where(superior: true)
-                                              .where.not(id: current_user.id), :id, :name,
-                                              {prompt: "申請先上長を選択"}, {class: "form-control"}) %>
-            <%= f.submit "申請", class: "btn btn-md btn-block btn-primary btn-apply-month" %>
-          <% end %>
-        </td>
+        <td rowspan="2"></td>
       </tr>
       <tr>
         <td colspan="2"><%= @attendances.count %></td>
@@ -239,62 +216,6 @@
                 </tbody>
               </table>
               <%= f.submit "変更を送信する", class: "btn btn-lg btn-block btn-primary" %>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="ApproveMonthModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-center">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-md-12">
-            <%= form_with url: attendances_approve_month_user_path(current_user),
-                local: true, method: :patch do |f| %>
-              <% grouped_month_attendances.each do |attendance_group, user_id| %>
-                <h3><%= "【#{search_user(user_id[0]).name}からの一ヶ月分勤怠申請】" %></h3>
-                <table class="table table-condensed table-hover table-bordered"
-                           id="applying_month_table">
-                  <thead>
-                    <tr>
-                      <th>月</th>
-                      <th>指示者確認㊞</th>
-                      <th>変更</th>
-                      <th>勤怠を確認する</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <% user_id.each do |month| %>
-                      <%= f.fields_for "attendances[]", month do |attendance| %>
-                        <tr>
-                          <td><%= month.worked_on.month %>月</td>
-                          <td>
-                            <%= attendance.select :month_status,  ['申請中', '承認', '否認'],
-                                {prompt: month.month_status}, class: "form-control" %>
-                          </td>
-                          <td><%= attendance.check_box :approve_check %></td>
-                          <td>
-                            <%= link_to "確認する", user_path(month.user_id, date: month.worked_on, hidden: 1),
-                                class: "btn btn-md btn-primary" %>
-                          </td>
-                        </tr>
-                      <% end %>
-                    <% end %>
-                  </tbody>
-                </table>
-              <% end %>
-              <div class="btn-approve-month">
-                <%= f.submit "変更を送信する", class: "btn btn-lg btn-primary" %>
-              </div>
             <% end %>
           </div>
         </div>
@@ -363,14 +284,12 @@
                           <td><%= edited.finished_at.hour %></td>
                           <td><%= edited.finished_at.min %></td>
                           <td><%= edited.note %></td>
-                          <td>
-                            <%= attendance.select :edit_status,  ['申請中', '承認', '否認'],
-                                {prompt: edited.edit_status}, class: "form-control" %>
-                          </td>
+                          <td><%= attendance.select :edit_status,  ['申請中', '承認', '否認'],
+                                  {prompt: edited.edit_status}, class: "form-control" %></td>
                           <td><%= attendance.check_box :approve_check %></td>
                           <td>
                             <%= link_to "確認する", user_path(edited.user_id, date: edited.worked_on.beginning_of_month, hidden: 1),
-                                class: "btn btn-md btn-primary" %>
+                                    class: "btn btn-md btn-primary" %>
                           </td>
                         </tr>
                       <% end %>
