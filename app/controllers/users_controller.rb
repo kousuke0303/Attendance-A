@@ -36,7 +36,7 @@ class UsersController < ApplicationController
       end 
       format.csv do
           #csv用の処理を書く
-          send_data render_to_string, filename: "(ファイル名).csv", type: :csv
+          send_data render_to_string, filename: "#{@attendances[0].worked_on.year}-#{@attendances[0].worked_on.month}.csv", type: :csv
       end
     end
   end
